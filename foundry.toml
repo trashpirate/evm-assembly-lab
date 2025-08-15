@@ -2,11 +2,14 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+ffi = true
 solc = "0.8.26"
 optimizer = true
 optimizer_rounds = 200
 fs_permissions = [{ access = "read", path = "./broadcast" }]
 
+# [profile.solx]
+# solc_version = ".local/bin/solx"
 
 [fuzz]
 runs = 10000

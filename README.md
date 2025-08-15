@@ -1,4 +1,4 @@
-# FOUNDRY STARTER
+# EVM ASSEMBLY LAB
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/forge-v0.2.0-blue.svg?style=for-the-badge)
@@ -11,7 +11,7 @@
 
 
 ## About
-Project Description
+This repo contains a collection of smart contracts to practice writing contracts in huff, yul, and solidity through a follow along tutorial by [Cyfrin Updraft](https://updraft.cyfrin.io). The original course repo can be found [here](https://github.com/Cyfrin/1-horse-store-s23/blob/main/README.md).
 
 ## Installation
 

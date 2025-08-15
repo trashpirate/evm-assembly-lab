@@ -1,0 +1,63 @@
+// send calldata -> function dispatch -> function
+// calldata for function updateHorseNumber with argument "1": 
+// 0xcdfead2e0000000000000000000000000000000000000000000000000000000000000001
+
+/* interface */
+#define function updateHorseNumber(uint256) nonpayable returns()
+#define function readNumberOfHorses() view returns (uint256)
+
+#define constant NUMBER_OF_HORSES_STORAGE_SLOT = FREE_STORAGE_POINTER()
+
+// takes: what it takes onto the stack
+// returns: what it removes from the stack
+// `huffc src/horseStoreV1/HorseStore.huff -b` returns contract creation bytecode: 60008060093d393df3
+#define macro MAIN() = takes(0) returns(0) {
+    0x00 // [0] - pushes 0x00 to the stack. TOP [a, b] BOTTOM
+    calldataload // [0xcdfead2e0000000000000000000000000000000000000000000000000000000000000001, 0] - loads calldata without offset (because index is 0x00)
+    0xe0 // shift value: 32-4 = 28 bytes = 224 bits = 0xe0
+    shr  // shr(num bits, data)
+    dup1 // duplicate the function selector (duplicated to have a copy for later use)
+
+    // check if function selector matches updateHorseNumber(uint256)
+    __FUNC_SIG(updateHorseNumber) // push function selector 0xcdfead2e for updateHorseNumber(uint256)
+    eq // eq(a, b) - compares the two top stack values for equality
+    updateJump
+    jumpi
+
+    // check if function selector matches readNumberOfHorses()
+    __FUNC_SIG(readNumberOfHorses) // 0xe026c017
+    eq
+    readJump
+    jumpi
+
+    // reverting if no function selector matches
+    0x00 0x00 revert // if no function selector matches, revert (no error code, so push only 0x00 0x00)
+    
+    updateJump:
+        SET_NUMBER_OF_HORSES()
+    readJump:
+        GET_NUMBER_OF_HORSES()
+}
+
+#define macro SET_NUMBER_OF_HORSES() = takes(0) returns(0){
+    // 1. get value from calldata
+    0x04 calldataload               // [value]
+    // 2. Give it a storage slot
+    [NUMBER_OF_HORSES_STORAGE_SLOT] // [storage_slot, value]
+    // 3. sstore opcode
+    sstore                          // []
+    stop                            // halts execution - otherwise code below would be executed
+}
+
+#define macro GET_NUMBER_OF_HORSES() = takes(0) returns(0){
+    // 1. Get a storage slot
+    [NUMBER_OF_HORSES_STORAGE_SLOT] // stack: [storage_slot]
+    // 2. sload opcode
+    sload                           // stack: [value]  
+    // 3. load value into memory
+    0x00                            // stack: [0x00, value]
+    mstore                          // stack: []              memory: [value]
+    // 4. return value
+    0x20 0x00                       // stack: [size, offset]  memory: [value]
+    return                          // stack: []              memory: []
+}
